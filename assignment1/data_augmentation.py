@@ -20,8 +20,8 @@ def main():
     # Define Data Augmentation Tools
     data_augment = DataAugmentation()
 
-    # Random Crop Image
-    crop_img = data_augment.random_crop(img)
+    # Crop Image
+    crop_img = data_augment.crop(img, x=20, y=50, crop_width=200, crop_height=300)
     _, (ax1, ax2) = plt.subplots(1, 2)
     ax1.set_title('origin image')
     ax1.imshow(img)
@@ -30,8 +30,8 @@ def main():
     ax2.imshow(crop_img)
     ax2.axis('off')
 
-    # Random Color Shift
-    color_shift_img = data_augment.random_color_shift(img)
+    # Color Shift
+    color_shift_img = data_augment.color_shift(img, low_bound=-80, high_bound=80)
     _, (ax1, ax2) = plt.subplots(1, 2)
     ax1.set_title('origin image')
     ax1.imshow(img)
@@ -53,7 +53,7 @@ def main():
     # histogram
     _, (ax1, ax2, ax3) = plt.subplots(1, 3)
     ax1.hist(img.flatten(), 256, [0, 256], color='r')
-    histogram_equalized_img = data_augment.histogram_equalized(img)  # 直方图均衡化图像
+    histogram_equalized_img = data_augment.histogram_equalized(img, scale=0.8)  # 直方图均衡化图像
     ax2.set_title('origin image')
     ax2.imshow(img)
     ax2.axis('off')
@@ -63,7 +63,7 @@ def main():
     plt.tight_layout()
 
     # Random Rotation
-    random_rotation_img = data_augment.random_rotation(img)
+    random_rotation_img = data_augment.rotation(img, (int(img.shape[0]/2), int(img.shape[1]/2)), angle=60, scale=0.6)
     _, (ax1, ax2) = plt.subplots(1, 2)
     ax1.set_title('origin image')
     ax1.imshow(img)
@@ -73,7 +73,7 @@ def main():
     ax2.axis('off')
 
     # Affine Transform
-    affine_transform_img = data_augment.affine_transform(img)
+    affine_transform_img = data_augment.affine_transform(img, src=None, dst=None)
     _, (ax1, ax2) = plt.subplots(1, 2)
     ax1.set_title('origin image')
     ax1.imshow(img)
@@ -83,7 +83,7 @@ def main():
     ax2.axis('off')
 
     # Perspective Transform
-    perspective_transform_img = data_augment.perspective_transform(img)
+    perspective_transform_img = data_augment.perspective_transform(img, src=None, dst=None)
     _, (ax1, ax2) = plt.subplots(1, 2)
     ax1.set_title('origin image')
     ax1.imshow(img)
