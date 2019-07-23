@@ -4,4 +4,4 @@
 2. RANSAC 
 3. Image Stitch
 
-2,3��ûд�֮꣬����
+2,3还没写完，之后补上

@@ -1,7 +1,7 @@
 # 2019-summer-cv-courses
 
 ## assignment 1
-Combine bellow functions together to complete a data augmentation script.
+Classical Image Processing I
 1. image crop
 2. color shift
 3. gamma correction
@@ -11,12 +11,13 @@ Combine bellow functions together to complete a data augmentation script.
 7. perspective transform
 
 ## assignment 2
-Classical Image Processing
+Classical Image Processing II
 1. Median Blur
 2. RANSAC 
 3. Image Stitch
 
 ## assignment 3
+Classical Machine Learning I
 1. Reorganize Linear Regression in Python mode.
 2. Logistic regression
 3. Mathematics
