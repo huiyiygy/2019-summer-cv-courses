@@ -81,20 +81,18 @@ class KMeans:
 
 
 def main():
-    # step 0.0: generate source data
+    np.random.seed(2)
     # data = pd.DataFrame({
     #     'x': [12, 20, 28, 18, 10, 29, 33, 24, 45, 45, 52, 51, 52, 55, 53, 55, 61, 64, 69, 72, 23],
     #     'y': [39, 36, 30, 52, 54, 20, 46, 55, 59, 63, 70, 66, 63, 58, 23, 14, 8, 19, 7, 24, 77]
     # })
     data = pd.DataFrame({
-        'x': [random.randint(0, 80) for _ in range(100)],
-        'y': [random.randint(0, 80) for _ in range(100)]
+        'x': [np.random.randint(0, 80) for _ in range(100)],
+        'y': [np.random.randint(0, 80) for _ in range(100)]
     })
-    # step 0.1: generate central point
-    np.random.seed(2)
     k = 3
-    # step 0.2: assign centroid for each source data
     color_map = {0: 'r', 1: 'g', 2: 'b'}
+
     kmeans = KMeans(data, k, color_map)
     kmeans.train(iterators=10)
 
