@@ -18,3 +18,7 @@
 1. Reorganize Linear Regression in Python mode.
 2. Logistic regression
 3. Mathematics
+
+## assignment 4 - Classical Machine Learning II
+1. kmeans
+2. kmeans++

@@ -1,4 +1,4 @@
-# Data Augmentation
+# Classical Machine Learning I - Data Augmentation
 ## Task
 Combine bellow functions together to complete a data augmentation script.
 1. image crop

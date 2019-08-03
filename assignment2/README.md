@@ -1,4 +1,4 @@
-# Classical Image Processing
+# Classical Image Processing II
 ## Task
 1. Median Blur
 2. RANSAC 
