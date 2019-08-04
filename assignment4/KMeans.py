@@ -7,29 +7,32 @@
 """
 import pandas as pd
 import numpy as np
-import random
 import matplotlib.pyplot as plt
 
 
 class KMeans:
-    def __init__(self, data, k=1, color_map=None, central_ids=None):
+    def __init__(self, data: pd.DataFrame, k: int = 1, color_map: dict = None, low=0, high=80, central_ids: dict = None):
         # 数据点集
         self.data = data
         # 类别数
         self.k = k
         # 类别颜色
         self.color_map = color_map
+        # 点集范围下限
+        self.low = low
+        # 点集范围上限
+        self.high = high
         # 当前中心点坐标
         if central_ids is not None:
             self.central_ids = central_ids
         else:
             self.central_ids = {
-                i: [np.random.randint(0, 80), np.random.randint(0, 80)] for i in range(k)
+                i: [np.random.randint(low, high), np.random.randint(low, high)] for i in range(k)
             }
         # 当前所有点所属类别
         self.closest_central_ids = None
 
-    def train(self, iterators=10):
+    def train(self, iterators: int = 10):
         for i in range(iterators):
             print('-----------------')
             print('Iterator: {}'.format(i+1))
@@ -70,13 +73,13 @@ class KMeans:
             self.central_ids[i][0] = np.mean(self.data[self.data['closest'] == i]['x'])
             self.central_ids[i][1] = np.mean(self.data[self.data['closest'] == i]['y'])
 
-    def show(self, iterators=0):
-        plt.scatter(self.data['x'], self.data['y'], color=self.data['color'], alpha=0.5, edgecolor='k')
+    def show(self, iterators: int = 0):
+        plt.scatter(self.data['x'], self.data['y'], color=self.data['color'], linewidths=1, alpha=0.5, edgecolor='k')
         for i in self.central_ids.keys():
-            plt.scatter(*self.central_ids[i], color=self.color_map[i], linewidths=6)
+            plt.scatter(*self.central_ids[i], color=self.color_map[i], linewidths=3)
         plt.title('Iterators: {}'.format(iterators))
-        plt.xlim(0, 80)
-        plt.ylim(0, 80)
+        plt.xlim(self.low, self.high)
+        plt.ylim(self.low, self.high)
         plt.show()
 
 
@@ -86,14 +89,16 @@ def main():
     #     'x': [12, 20, 28, 18, 10, 29, 33, 24, 45, 45, 52, 51, 52, 55, 53, 55, 61, 64, 69, 72, 23],
     #     'y': [39, 36, 30, 52, 54, 20, 46, 55, 59, 63, 70, 66, 63, 58, 23, 14, 8, 19, 7, 24, 77]
     # })
+    low = -100
+    high = 100
     data = pd.DataFrame({
-        'x': [np.random.randint(0, 80) for _ in range(100)],
-        'y': [np.random.randint(0, 80) for _ in range(100)]
+        'x': [np.random.randint(low, high) for _ in range(100)],
+        'y': [np.random.randint(low, high) for _ in range(100)]
     })
     k = 3
     color_map = {0: 'r', 1: 'g', 2: 'b'}
 
-    kmeans = KMeans(data, k, color_map)
+    kmeans = KMeans(data, k, color_map, low, high)
     kmeans.train(iterators=10)
 
 
