@@ -22,3 +22,6 @@
 ## assignment 4 - Classical Machine Learning II
 1. kmeans
 2. kmeans++
+
+## assignment 5 - NMS and Soft-NMS
+Non maximum suppression python / cpp code 
