@@ -210,14 +210,14 @@ class Trainer(object):
 
         # Fast test during the training
         acc = corrects_labels / len(self.val_loader.dataset)
-        self.writer.add_scalar('train/Acc', acc, epoch)
+        self.writer.add_scalar('val/Acc', acc, epoch)
         self.writer.add_scalar('val/total_loss_epoch', test_loss, epoch)
         acc_classes, acc_species = 0.0, 0.0
         if self.args.dataset == 'Multi':
             acc_classes = correct_classes / len(self.val_loader.dataset)
             acc_species = correct_species / len(self.val_loader.dataset)
-            self.writer.add_scalar('train/Acc_classes', acc_classes, epoch)
-            self.writer.add_scalar('train/Acc_species', acc_species, epoch)
+            self.writer.add_scalar('val/Acc_classes', acc_classes, epoch)
+            self.writer.add_scalar('val/Acc_species', acc_species, epoch)
 
         print('test validation:')
         if self.args.dataset != 'Multi':
