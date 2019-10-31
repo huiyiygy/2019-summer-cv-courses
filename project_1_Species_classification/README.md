@@ -39,7 +39,7 @@
 以backbone为Xception的预训练网络进行多任务分类训练。
 
 训练参数如下：
-- learn-rate 0.001 
+- learn-rate 1e-3
 - batch-size 31 
 - input-size 299
 - loss 交叉熵损失
@@ -49,4 +49,6 @@
 | 变化参数                      | Xception-pretrained                                |
 | ---------------------------- | -------------------------------------------------- |
 | epoch:100,weight-decay :0.0  | Acc:0.8875, Acc_classes:0.9375, Acc_species:0.8875 |
-| epoch:200,weight-decay :1e-5 | 待更新                                              |
+| epoch:200,weight-decay :1e-5 | Acc:0.8750, Acc_classes:0.925, Acc_species:0.8750 |
+| epoch:200,learn-rate: 1e-4 | **Acc:0.925, Acc_classes:0.9375, Acc_species:0.925** |
+
