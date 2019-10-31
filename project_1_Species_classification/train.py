@@ -16,6 +16,7 @@ from tqdm import tqdm
 from dataloader import make_data_loader
 from model.classes_net import ClassesNet
 from model.species_net import SpeciesNet
+from model.multi_net import MultiNet
 from utils.saver import Saver
 from tensorboardX import SummaryWriter
 
@@ -42,6 +43,9 @@ class Trainer(object):
         if self.args.dataset == 'Species':
             model = SpeciesNet(backbone=self.args.backbone, num_classes=self.nclass, pretrained=True)
             print("Training SpeciesNet")
+        if self.args.dataset == 'Multi':
+            model = MultiNet(backbone=self.args.backbone, num_classes=self.nclass, pretrained=True)
+            print("Training MultiNet")
 
         self.model = model
 
@@ -84,81 +88,146 @@ class Trainer(object):
         print('[Epoch: %d, learning rate: %.6f, previous best = %.4f]' % (epoch, self.args.learn_rate, self.best_pred))
         train_loss = 0.0
         corrects_labels = 0
+        correct_classes = 0
+        correct_species = 0
         self.model.train()
         tbar = tqdm(self.train_loader)
         num_img_tr = len(self.train_loader)
 
         for i, sample in enumerate(tbar):
-            image, target = sample['image'], sample['label']
-            if self.args.cuda:
-                image, target = image.cuda(), target.cuda()
             self.optimizer.zero_grad()
+            if self.args.dataset != 'Multi':
+                image, target = sample['image'], sample['label']
+                if self.args.cuda:
+                    image, target = image.cuda(), target.cuda()
+                output = self.model(image)
+                loss = self.criterion(output, target)
 
-            output = self.model(image)
+                pred_label = output.data.cpu().numpy()
+                target = target.cpu().numpy()
+                pred_label = np.argmax(pred_label, axis=1)
+                corrects_labels += np.sum(pred_label == target)
 
-            loss = self.criterion(output, target)
+            else:
+                image, target_classes, target_species = sample['image'], sample['classes_label'], sample['species_label']
+                if self.args.cuda:
+                    image, target_classes, target_species = image.cuda(), target_classes.cuda(), target_species.cuda()
+                output_classes, output_species = self.model(image)
+                classes_loss = self.criterion(output_classes, target_classes)
+                species_loss = self.criterion(output_species, target_species)
+                loss = classes_loss + species_loss
+
+                pred_classes = output_classes.data.cpu().numpy()
+                pred_species = output_species.data.cpu().numpy()
+                target_classes = target_classes.data.cpu().numpy()
+                target_species = target_species.data.cpu().numpy()
+                pred_classes = np.argmax(pred_classes, axis=1)
+                pred_species = np.argmax(pred_species, axis=1)
+
+                tmp1 = pred_classes == target_classes
+                tmp2 = target_species == pred_species
+                correct_classes += np.sum(tmp1)  # 统计“纲”分类正确的数量
+                correct_species += np.sum(tmp2)  # 统计“种”分类正确的数量
+                corrects_labels += np.sum(tmp1 & tmp2)  # 按位与，统计“纲”、“种”同时分类正确的数量
+
             loss.backward()
             self.optimizer.step()
 
             self.writer.add_scalar('train/total_loss_iter', loss.item(), i + num_img_tr * epoch)
             train_loss += loss.item()
-
-            pred_label = output.data.cpu().numpy()
-            target = target.cpu().numpy()
-            pred_label = np.argmax(pred_label, axis=1)
-
-            corrects_labels += np.sum(pred_label == target)
             tbar.set_description('Train loss: %.5f' % (train_loss / (i + 1)))
 
         # Fast test during the training
-        Acc = corrects_labels / len(self.train_loader.dataset)
-        self.writer.add_scalar('train/Acc', Acc, epoch)
+        acc = corrects_labels / len(self.train_loader.dataset)
+        self.writer.add_scalar('train/Acc', acc, epoch)
         self.writer.add_scalar('train/total_loss_epoch', train_loss, epoch)
+        acc_classes, acc_species = 0.0, 0.0
+        if self.args.dataset == 'Multi':
+            acc_classes = correct_classes / len(self.train_loader.dataset)
+            acc_species = correct_species / len(self.train_loader.dataset)
+            self.writer.add_scalar('train/Acc_classes', acc_classes, epoch)
+            self.writer.add_scalar('train/Acc_species', acc_species, epoch)
 
         print('train validation:')
-        print("Acc:{}".format(Acc))
+        if self.args.dataset != 'Multi':
+            print("Acc:{}".format(acc))
+        else:
+            print("Acc:{}, Acc_classes:{}, Acc_species:{}".format(acc, acc_classes, acc_species))
         print('Loss: %.5f' % train_loss)
         print('---------------------------------')
 
     def validation(self, epoch):
         test_loss = 0.0
         corrects_labels = 0
+        correct_classes = 0
+        correct_species = 0
         self.model.eval()
         tbar = tqdm(self.val_loader, desc='\r')
         num_img_val = len(self.val_loader)
 
         for i, sample in enumerate(tbar):
-            image, target = sample['image'], sample['label']
-            if self.args.cuda:
-                image, target = image.cuda(), target.cuda()
 
-            with torch.no_grad():
-                output = self.model(image)
+            if self.args.dataset != 'Multi':
+                image, target = sample['image'], sample['label']
+                if self.args.cuda:
+                    image, target = image.cuda(), target.cuda()
+                with torch.no_grad():
+                    output = self.model(image)
 
-            loss = self.criterion(output, target)
+                loss = self.criterion(output, target)
+
+                pred_label = output.data.cpu().numpy()
+                target = target.cpu().numpy()
+                pred_label = np.argmax(pred_label, axis=1)
+                corrects_labels += np.sum(pred_label == target)
+            else:
+                image, target_classes, target_species = sample['image'], sample['classes_label'], sample['species_label']
+                if self.args.cuda:
+                    image, target_classes, target_species = image.cuda(), target_classes.cuda(), target_species.cuda()
+                with torch.no_grad():
+                    output_classes, output_species = self.model(image)
+
+                classes_loss = self.criterion(output_classes, target_classes)
+                species_loss = self.criterion(output_species, target_species)
+                loss = classes_loss + species_loss
+
+                pred_classes = output_classes.data.cpu().numpy()
+                pred_species = output_species.data.cpu().numpy()
+                target_classes = target_classes.data.cpu().numpy()
+                target_species = target_species.data.cpu().numpy()
+                pred_classes = np.argmax(pred_classes, axis=1)
+                pred_species = np.argmax(pred_species, axis=1)
+
+                tmp1 = pred_classes == target_classes
+                tmp2 = target_species == pred_species
+                correct_classes += np.sum(tmp1)  # 统计“纲”分类正确的数量
+                correct_species += np.sum(tmp2)  # 统计“种”分类正确的数量
+                corrects_labels += np.sum(tmp1 & tmp2)  # 按位与，统计“纲”、“种”同时分类正确的数量
 
             test_loss += loss.item()
             tbar.set_description('Test loss: %.5f' % (test_loss / (i + 1)))
             self.writer.add_scalar('val/total_loss_iter', loss.item(), i + num_img_val * epoch)
 
-            pred_label = output.data.cpu().numpy()
-            target = target.cpu().numpy()
-            pred_label = np.argmax(pred_label, axis=1)
-
-            corrects_labels += np.sum(pred_label == target)
-
         # Fast test during the training
-        Acc = corrects_labels / len(self.val_loader.dataset)
-
-        self.writer.add_scalar('val/Acc', Acc, epoch)
+        acc = corrects_labels / len(self.val_loader.dataset)
+        self.writer.add_scalar('train/Acc', acc, epoch)
         self.writer.add_scalar('val/total_loss_epoch', test_loss, epoch)
+        acc_classes, acc_species = 0.0, 0.0
+        if self.args.dataset == 'Multi':
+            acc_classes = correct_classes / len(self.val_loader.dataset)
+            acc_species = correct_species / len(self.val_loader.dataset)
+            self.writer.add_scalar('train/Acc_classes', acc_classes, epoch)
+            self.writer.add_scalar('train/Acc_species', acc_species, epoch)
 
         print('test validation:')
-        print("Acc:{}".format(Acc))
+        if self.args.dataset != 'Multi':
+            print("Acc:{}".format(acc))
+        else:
+            print("Acc:{}, Acc_classes:{}, Acc_species:{}".format(acc, acc_classes, acc_species))
         print('Loss: %.5f' % test_loss)
         print('====================================')
 
-        new_pred = Acc
+        new_pred = acc
         if new_pred > self.best_pred:
             is_best = True
             self.best_pred = new_pred
@@ -236,14 +305,14 @@ def main():
 
     # default settings for epochs, batch_size and lr
     if args.epochs is None:
-        epoches = {'rssrai2019': 100}
+        epoches = {'classes': 100, 'species': 100, 'multi': 100}
         args.epochs = epoches[args.dataset.lower()]
 
     if args.batch_size is None:
         args.batch_size = 4 * len(args.gpu_ids)
 
     if args.learn_rate is None:
-        lrs = {'classes': 0.001}
+        lrs = {'classes': 0.001, 'species': 0.001, 'multi': 0.001}
         args.learn_rate = lrs[args.dataset.lower()] / (4 * len(args.gpu_ids)) * args.batch_size
 
     if args.checkname is None:

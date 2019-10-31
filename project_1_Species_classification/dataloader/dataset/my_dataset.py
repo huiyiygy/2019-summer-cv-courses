@@ -43,8 +43,12 @@ class MyDataset(torch.utils.data.dataset.Dataset):
             label_class = int(self.file_info.iloc[idx]['classes'])
         elif self.dataset == 'Species':
             label_class = int(self.file_info.iloc[idx]['species'])
-
         sample = {'image': image, 'label': label_class}
+
+        if self.dataset == 'Multi':
+            classes_label = int(self.file_info.iloc[idx]['classes'])
+            species_label = int(self.file_info.iloc[idx]['species'])
+            sample = {'image': image, 'classes_label': classes_label, 'species_label': species_label}
 
         if self.split == 'train':
             return self.transform_tr(sample)

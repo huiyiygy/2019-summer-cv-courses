@@ -25,3 +25,8 @@
 
 ## assignment 5 - NMS and Soft-NMS
 Non maximum suppression python / cpp code 
+
+# 项目一
+## 任务一：动物“纲”分类
+## 任务二：动物“种”分类
+## 任务三：动物“纲”,“种”,多任务分类训练

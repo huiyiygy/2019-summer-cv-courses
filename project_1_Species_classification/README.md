@@ -35,4 +35,19 @@
 | Xception-pretrained    | 0.8625   |
 | Inceptionv4-pretrained | 0.7000   | 
 
+## 任务三：动物“纲”,“种”,多任务分类训练
+以backbone为Xception的预训练网络进行多任务分类训练。
 
+训练参数如下：
+- learn-rate 0.001 
+- weight-decay 0.0 
+- epochs 50 
+- batch-size 31 
+- input-size 299
+- loss 交叉熵损失
+
+训练结果如下：
+
+| Epoch                  | 100                                            | 
+| ---------------------- | ---------------------------------------------- |
+| Xception-pretrained    | Acc:0.825 Acc_classes:0.89 Acc_species:0.825   |
