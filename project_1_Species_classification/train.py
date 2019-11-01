@@ -15,7 +15,6 @@ from tqdm import tqdm
 
 from dataloader import make_data_loader
 from model.classes_net import ClassesNet
-from model.species_net import SpeciesNet
 from model.multi_net import MultiNet
 from utils.saver import Saver
 from tensorboardX import SummaryWriter
@@ -37,13 +36,13 @@ class Trainer(object):
 
         model = None
         # Define network
-        if self.args.dataset == 'Classes':
+        if self.args.dataset != 'Multi':
             model = ClassesNet(backbone=self.args.backbone, num_classes=self.nclass, pretrained=True)
-            print("Training ClassesNet")
-        if self.args.dataset == 'Species':
-            model = SpeciesNet(backbone=self.args.backbone, num_classes=self.nclass, pretrained=True)
-            print("Training SpeciesNet")
-        if self.args.dataset == 'Multi':
+            if self.args.dataset == 'Classes':
+                print("Training ClassesNet")
+            else:
+                print("Training SpeciesNet")
+        else:
             model = MultiNet(backbone=self.args.backbone, num_classes=self.nclass, pretrained=True)
             print("Training MultiNet")
 

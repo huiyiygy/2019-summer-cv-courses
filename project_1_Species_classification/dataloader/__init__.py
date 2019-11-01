@@ -36,6 +36,7 @@ def make_data_loader(args, **kwargs):
         num_class = len(SPECIES)
         train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, **kwargs)
         val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False, **kwargs)
+
     elif args.dataset == 'Multi':
         train_set = MyDataset(args, ROOT_DIR, MULTI_TRAIN_ANNO, split="train")
         val_set = MyDataset(args, ROOT_DIR, MULTI_VAL_ANNO, split="val")
