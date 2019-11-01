@@ -268,7 +268,7 @@ def inceptionv3(num_classes=1000, pretrained='imagenet'):
         settings = pretrained_settings['inceptionv3'][pretrained]
         model = load_pretrained(model, num_classes, settings)
 
-    # Modify attributs
+    # Modify attributes
     model.last_linear = model.fc
     del model.fc
 
@@ -323,7 +323,7 @@ def inceptionv3(num_classes=1000, pretrained='imagenet'):
 #  ResNets
 
 def modify_resnets(model):
-    # Modify attributs
+    # Modify attributes
     model.last_linear = model.fc
     model.fc = None
 
@@ -419,7 +419,7 @@ def resnet152(num_classes=1000, pretrained='imagenet'):
 def modify_squeezenets(model):
     # /!\ Beware squeezenets do not have any last_linear module
 
-    # Modify attributs
+    # Modify attributes
     model.dropout = model.classifier[0]
     model.last_conv = model.classifier[1]
     model.relu = model.classifier[2]
@@ -476,7 +476,7 @@ def squeezenet1_1(num_classes=1000, pretrained='imagenet'):
 
 
 def modify_vggs(model):
-    # Modify attributs
+    # Modify attributes
     model._features = model.features
     del model.features
     model.linear0 = model.classifier[0]

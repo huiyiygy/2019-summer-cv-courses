@@ -245,7 +245,7 @@ class Inception_C(nn.Module):
 class InceptionV4(nn.Module):
     def __init__(self, num_classes=1001):
         super(InceptionV4, self).__init__()
-        # Special attributs
+        # Special attributes
         self.input_space = None
         self.input_size = (299, 299, 3)
         self.mean = None
@@ -279,8 +279,8 @@ class InceptionV4(nn.Module):
 
     def logits(self, features):
         # Allows image of any size to be processed
-        adaptiveAvgPoolWidth = features.shape[2]
-        x = F.avg_pool2d(features, kernel_size=adaptiveAvgPoolWidth)
+        adaptive_avg_pool_width = features.shape[2]
+        x = F.avg_pool2d(features, kernel_size=adaptive_avg_pool_width)
         x = x.view(x.size(0), -1)
         x = self.last_linear(x)
         return x
